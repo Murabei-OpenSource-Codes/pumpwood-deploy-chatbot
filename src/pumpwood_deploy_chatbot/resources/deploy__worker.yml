@@ -1,0 +1,104 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pumpwood-chatbot-worker
+spec:
+  replicas: {replicas}
+  selector:
+    matchLabels:
+      type: worker
+      endpoint: pumpwood-chatbot-worker
+      function: chatbot
+  template:
+    metadata:
+      labels:
+          type: worker
+          endpoint: pumpwood-chatbot-worker
+          function: chatbot
+    spec:
+      imagePullSecrets:
+        - name: dockercfg
+      volumes:
+      - name: gcp--storage-key
+        secret:
+          secretName: gcp--storage-key
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: function
+                operator: NotIn
+                values:
+                - system
+      containers:
+      - name: pumpwood-chatbot-worker
+        image: {repository}/pumpwood-chatbot-worker:{version}
+        imagePullPolicy: IfNotPresent
+        resources:
+          requests:
+            memory: "{requests_memory}"
+            cpu:  "{requests_cpu}"
+          limits:
+            memory: "{limits_memory}"
+            cpu:  "{limits_cpu}"
+        volumeMounts:
+          - name: gcp--storage-key
+            readOnly: true
+            mountPath: /etc/secrets
+        env:
+        - name: DEBUG
+          value: "{debug}"
+
+        ###################
+        # DEFAULT CONFIGS #
+        - name: HASH_SALT
+          valueFrom:
+            secretKeyRef:
+              name: general-secrets
+              key: hash_salt
+
+        # Database
+        - name: DB_USERNAME
+          value: {db_username}
+        - name: DB_HOST
+          value: {db_host}
+        - name: DB_PORT
+          value: "{db_port}"
+        - name: DB_DATABASE
+          value: {db_database}
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: pumpwood-chatbot-secrets
+              key: db_password
+
+        # RABBITMQ ETL
+        - name: RABBITMQ_HOST
+          value: "rabbitmq-main"
+        - name: RABBITMQ_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: rabbitmq-main-secrets
+              key: password
+
+        # Microsservice
+        - name: MICROSERVICE_PASSWORD
+          valueFrom:
+              secretKeyRef:
+                name: pumpwood-chatbot-secrets
+                key: microservice_password
+
+        - name: OPENAI_API_KEY
+          valueFrom:
+            secretKeyRef:
+              name: pumpwood-chatbot-secrets
+              key: openai_api_key
+
+        # Limit process
+        - name: PUMPWOOD_COMUNICATION__N_PARALLEL
+          value: '{n_parallel}'
+        - name: PUMPWOOD_COMUNICATION__PARALLEL_CHUNK_SIZE
+          value: '{chunk_size}'
+        - name: QUERY_LIMIT
+          value: '{query_limit}'
