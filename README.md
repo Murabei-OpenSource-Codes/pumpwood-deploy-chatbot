@@ -49,13 +49,11 @@ flowchart LR
         B[DeployPumpWood]
     end
     subgraph cluster [Cluster]
-        S[pumpwood-chatbot-secrets]
         APP[pumpwood-chatbot-app]
         W[chatbot worker]
         RMQ[rabbitmq-main]
     end
     A --> B
-    B --> S
     B --> APP
     B --> W
     RMQ --> APP
