@@ -8,6 +8,16 @@ for apply.
 
 Developed by [Murabei Data Science](https://murabei.com). BSD-3-Clause.
 
+<p align="center" width="60%">
+  <img src="static_doc/sitelogo-horizontal.png" /> <br>
+
+  <a href="https://en.wikipedia.org/wiki/Cecropia">
+    Pumpwood is a native Brazilian tree
+  </a> with a symbiotic relation to ants (Murabei)
+</p>
+
+---
+
 ## Objective and motivation
 
 This package deploys the Pumpwood Chatbot HTTP API and its RabbitMQ
