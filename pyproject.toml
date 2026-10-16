@@ -1,6 +1,6 @@
 [project]
 name = "pumpwood-deploy-chatbot"
-version = "0.0.1"
+version = "0.0.2"
 description = "Package for deploy Chatbot Service"
 readme = "README.md"
 requires-python = ">=3.6"
