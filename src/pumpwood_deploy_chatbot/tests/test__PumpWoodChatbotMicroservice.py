@@ -1,4 +1,5 @@
 """Tests for Chatbot deployment manifests."""
+import base64
 import unittest
 from pumpwood_deploy.type import (
     PumpwoodDeployDeployment, PumpwoodDeploySecret)
@@ -12,6 +13,8 @@ class TestPumpWoodChatbotMicroservice(unittest.TestCase):
         """Ensure manifests include secrets, app, and one worker."""
         deploy_obj = PumpWoodChatbotMicroservice(
             microservice_password="xxxx",
+            agent_microservice_username="restricted-agent",
+            agent_microservice_password="agent-password",
             app_version="xxxx",
             worker_version="xxxx",
             api_key="xxxx")
@@ -25,6 +28,11 @@ class TestPumpWoodChatbotMicroservice(unittest.TestCase):
         self.assertIsInstance(results[2], PumpwoodDeployDeployment)
         self.assertEqual(results[2].name, 'pumpwood_chatbot__worker')
         self.assertIn('OPENAI_API_KEY', results[2].content)
+        self.assertIn(
+            'value: "restricted-agent"', results[2].content)
+        encoded_agent_password = base64.b64encode(
+            b"agent-password").decode()
+        self.assertIn(encoded_agent_password, results[0].content)
         for item in results:
             self.assertTrue(hasattr(item, 'content'))
             self.assertTrue(len(item.content) > 0)

@@ -89,6 +89,16 @@ spec:
                 name: pumpwood-chatbot-secrets
                 key: microservice_password
 
+        # Agent
+        - name: AGENT_MICROSERVICE_USERNAME
+          value: "{agent_microservice_username}"
+        - name: AGENT_MICROSERVICE_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: pumpwood-chatbot-secrets
+              key: agent_microservice_password
+
+        # OpenAI
         - name: OPENAI_API_KEY
           valueFrom:
             secretKeyRef:

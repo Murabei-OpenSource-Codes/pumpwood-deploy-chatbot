@@ -57,8 +57,6 @@ class PumpWoodChatbotMicroservice(BasePumpwoodDeployMicroservice):
     def __init__(self,
                 app_version: str,
                 worker_version: str,
-                app_image: str,
-                worker_image: str,
                 api_key: str,
                 microservice_password: str = "microservice--chatbot",
                 db_username: str = "pumpwood",
@@ -75,6 +73,8 @@ class PumpWoodChatbotMicroservice(BasePumpwoodDeployMicroservice):
                 app_limits_cpu: str = "12000m",
                 app_requests_memory: str = "20Mi",
                 app_requests_cpu: str = "1m",
+                agent_microservice_username: str = "microservice--agent",
+                agent_microservice_password: str = "microservice--agent",
                 worker_debug: str = "FALSE",
                 worker_replicas: int = 1,
                 worker_n_parallel: int = 4,
@@ -130,6 +130,12 @@ class PumpWoodChatbotMicroservice(BasePumpwoodDeployMicroservice):
                 Memory request for app pods. Defaults to ``20Mi``.
             app_requests_cpu (str):
                 CPU request for app pods. Defaults to ``1m``.
+            agent_microservice_username (str):
+                Username for the restricted agent service user.
+                Defaults to ``microservice--agent``.
+            agent_microservice_password (str):
+                Password for the ``microservice--agent`` service user.
+                Defaults to ``microservice--agent``.
             worker_debug (str):
                 Debug flag for the chatbot worker. Defaults to
                 ``FALSE``.
@@ -156,6 +162,8 @@ class PumpWoodChatbotMicroservice(BasePumpwoodDeployMicroservice):
 
         self._microservice_password = base64.b64encode(
             microservice_password.encode()).decode()
+        self._agent_microservice_password = base64.b64encode(
+            agent_microservice_password.encode()).decode()
         self._db_password = base64.b64encode(db_password.encode()).decode()
         self._openai_api_key = base64.b64encode(api_key.encode()).decode()
         self.db_username = db_username
@@ -172,6 +180,8 @@ class PumpWoodChatbotMicroservice(BasePumpwoodDeployMicroservice):
         self.app_limits_cpu = app_limits_cpu
         self.app_requests_memory = app_requests_memory
         self.app_requests_cpu = app_requests_cpu
+
+        self.agent_microservice_username = agent_microservice_username
 
         self.worker_version = worker_version
         self.worker_debug = worker_debug
@@ -196,6 +206,7 @@ class PumpWoodChatbotMicroservice(BasePumpwoodDeployMicroservice):
         secrets_text_formated = secrets.format(
             db_password=self._db_password,
             microservice_password=self._microservice_password,
+            agent_microservice_password=self._agent_microservice_password,
             openai_api_key=self._openai_api_key)
 
         app_deployment_frmtd = deploy_app.format(
@@ -229,6 +240,7 @@ class PumpWoodChatbotMicroservice(BasePumpwoodDeployMicroservice):
             requests_cpu=self.worker_requests_cpu,
             limits_cpu=self.worker_limits_cpu,
             limits_memory=self.worker_limits_memory,
+            agent_microservice_username=self.agent_microservice_username,
             debug=self.worker_debug)
 
         return [
